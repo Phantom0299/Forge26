@@ -1,0 +1,1262 @@
+/* ============================================================
+   RouteX / NER-LINK Main Homepage Stylesheet (Light Theme)
+   Fully namespaced under .routex-home-root to preserve style isolation.
+   Aligned with Driver and System Admin dashboard design tokens.
+   ============================================================ */
+
+:root {
+  --home-bg: #FFFFFF;
+  --home-bg-soft: #F8FAF8;
+  --home-bg-muted: #F1F5F0;
+  --home-bg-card: #FFFFFF;
+  
+  --home-border: #DCE5D8;
+  --home-border-subtle: #E8EFE5;
+  --home-border-light: #F0F4EE;
+  
+  --home-text-main: #193B32;
+  --home-text-heading: #0F281E;
+  --home-text-sub: #5A6B63;
+  --home-text-muted: #71877D;
+  
+  --home-primary: #12432A;
+  --home-primary-hover: #0D3420;
+  --home-emerald: #16A779;
+  --home-emerald-hover: #128B64;
+  --home-mint: #DDF4E8;
+  --home-mint-border: #B7E4CD;
+  
+  --home-amber: #D97706;
+  --home-amber-bg: #FFF8EB;
+  --home-amber-border: #FCE1B6;
+  
+  --home-shadow-xs: 0 1px 2px rgba(25, 59, 50, 0.04);
+  --home-shadow-sm: 0 1px 3px rgba(25, 59, 50, 0.05), 0 3px 8px rgba(25, 59, 50, 0.03);
+  --home-shadow-md: 0 4px 14px rgba(25, 59, 50, 0.06), 0 1px 3px rgba(25, 59, 50, 0.03);
+  --home-shadow-lg: 0 12px 32px rgba(25, 59, 50, 0.08), 0 2px 6px rgba(25, 59, 50, 0.03);
+}
+
+.routex-home-root {
+  min-height: 100vh;
+  width: 100%;
+  background-color: var(--home-bg);
+  color: var(--home-text-main);
+  font-family: var(--font-geist-sans, "Inter", -apple-system, sans-serif);
+  overflow-x: hidden;
+  position: relative;
+  scroll-behavior: smooth;
+}
+
+/* ─── Navigation Header ────────────────────────────────────── */
+.routex-home-root .home-nav-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  width: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid var(--home-border-subtle);
+  transition: all 0.25s ease;
+}
+
+.routex-home-root .home-nav-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 28px;
+  height: 72px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+/* Brand Wordmark */
+.routex-home-root .home-nav-brand {
+  display: inline-flex;
+  align-items: baseline;
+  text-decoration: none;
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  outline: none;
+}
+
+.routex-home-root .home-brand-route {
+  color: var(--home-text-heading);
+}
+
+.routex-home-root .home-brand-x {
+  color: var(--home-emerald);
+}
+
+/* Center Menu Links */
+.routex-home-root .home-nav-menu {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+}
+
+.routex-home-root .home-nav-link {
+  position: relative;
+  text-decoration: none;
+  color: var(--home-text-sub);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 6px 0;
+  transition: color 0.2s ease;
+}
+
+.routex-home-root .home-nav-link:hover {
+  color: var(--home-text-heading);
+}
+
+.routex-home-root .home-nav-link-active {
+  color: var(--home-text-heading);
+  font-weight: 600;
+}
+
+.routex-home-root .home-nav-indicator {
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: var(--home-emerald);
+  border-radius: 9999px;
+}
+
+/* Right Actions */
+.routex-home-root .home-nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.routex-home-root .home-signin-link {
+  color: var(--home-text-main);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.routex-home-root .home-signin-link:hover {
+  color: var(--home-emerald);
+}
+
+.routex-home-root .home-getstarted-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  border-radius: 9999px;
+  background: var(--home-emerald);
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid transparent;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 8px rgba(22, 167, 121, 0.25);
+}
+
+.routex-home-root .home-getstarted-btn:hover {
+  background: var(--home-emerald-hover);
+  box-shadow: 0 4px 14px rgba(22, 167, 121, 0.35);
+  transform: translateY(-1px);
+}
+
+.routex-home-root .home-getstarted-arrow {
+  font-size: 13px;
+  transition: transform 0.2s ease;
+}
+
+.routex-home-root .home-getstarted-btn:hover .home-getstarted-arrow {
+  transform: translateX(3px);
+}
+
+/* Mobile Toggle */
+.routex-home-root .home-mobile-toggle {
+  display: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 6px;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.routex-home-root .home-hamburger-bar {
+  width: 22px;
+  height: 2px;
+  background-color: var(--home-text-main);
+  border-radius: 1px;
+  transition: all 0.2s ease;
+}
+
+.routex-home-root .home-mobile-drawer {
+  background: #FFFFFF;
+  border-bottom: 1px solid var(--home-border);
+  padding: 20px 28px;
+  box-shadow: var(--home-shadow-md);
+}
+
+.routex-home-root .home-mobile-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.routex-home-root .home-mobile-link {
+  color: var(--home-text-main);
+  font-size: 16px;
+  text-decoration: none;
+  padding: 6px 0;
+  font-weight: 500;
+}
+
+.routex-home-root .home-mobile-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+  padding-top: 16px;
+  border-top: 1px solid var(--home-border-subtle);
+}
+
+.routex-home-root .home-mobile-signin {
+  color: var(--home-text-main);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.routex-home-root .home-mobile-getstarted {
+  display: inline-block;
+  text-align: center;
+  padding: 10px 18px;
+  border-radius: 9999px;
+  background: var(--home-emerald);
+  color: #FFFFFF;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+/* ─── Hero Section ─────────────────────────────────────────── */
+.routex-home-root .home-hero-section {
+  position: relative;
+  min-height: calc(100vh - 72px);
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  background-color: var(--home-bg);
+  padding: 40px 0 60px;
+}
+
+.routex-home-root .home-hero-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 28px;
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1.05fr 1fr;
+  gap: 48px;
+  align-items: center;
+}
+
+.routex-home-root .home-hero-left {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  z-index: 10;
+}
+
+.routex-home-root .home-hero-eyebrow {
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--home-emerald);
+  text-transform: uppercase;
+}
+
+.routex-home-root .home-hero-title {
+  display: flex;
+  flex-direction: column;
+  font-size: clamp(48px, 5.8vw, 84px);
+  font-weight: 900;
+  line-height: 1.02;
+  letter-spacing: -0.04em;
+  margin: 0;
+}
+
+.routex-home-root .title-line-1 {
+  color: var(--home-text-heading);
+}
+
+.routex-home-root .title-line-2 {
+  color: var(--home-emerald);
+}
+
+.routex-home-root .home-hero-desc {
+  font-size: clamp(16px, 1.4vw, 18px);
+  color: var(--home-text-sub);
+  line-height: 1.6;
+  max-width: 520px;
+  margin: 4px 0 10px;
+}
+
+/* CTA Row */
+.routex-home-root .home-hero-cta-row {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.routex-home-root .home-primary-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 24px 10px 12px;
+  border-radius: 9999px;
+  background: var(--home-emerald);
+  border: 1px solid transparent;
+  color: #FFFFFF;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.25s ease;
+  box-shadow: 0 2px 10px rgba(22, 167, 121, 0.25);
+}
+
+.routex-home-root .home-primary-cta:hover {
+  background: var(--home-emerald-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(22, 167, 121, 0.35);
+}
+
+.routex-home-root .cta-icon-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #12432A;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.routex-home-root .home-secondary-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--home-border);
+  color: var(--home-text-main);
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 20px 8px 10px;
+  border-radius: 9999px;
+  transition: all 0.2s ease;
+  box-shadow: var(--home-shadow-sm);
+}
+
+.routex-home-root .home-secondary-cta:hover {
+  background: var(--home-bg-soft);
+  border-color: var(--home-mint-border);
+  transform: translateY(-2px);
+  box-shadow: var(--home-shadow-md);
+}
+
+.routex-home-root .play-icon-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--home-mint);
+  border: 1px solid var(--home-mint-border);
+  color: var(--home-emerald);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  padding-left: 2px;
+}
+
+/* Feature Highlights */
+.routex-home-root .home-feature-highlights {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 8px;
+}
+
+.routex-home-root .feature-pill {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--home-border);
+  color: var(--home-text-main);
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: var(--home-shadow-xs);
+  transition: all 0.2s ease;
+}
+
+.routex-home-root .feature-pill:hover {
+  border-color: var(--home-mint-border);
+  background: var(--home-bg-soft);
+}
+
+.routex-home-root .feature-icon {
+  color: var(--home-emerald);
+  display: flex;
+  align-items: center;
+}
+
+/* Floating Metric Card (Placed over map) */
+.routex-home-root .home-metric-card {
+  position: absolute;
+  bottom: 24px;
+  left: 24px;
+  z-index: 20;
+  background: #FFFFFF;
+  border: 1.5px solid var(--home-border);
+  border-radius: 12px;
+  padding: 10px 16px;
+  min-width: 260px;
+  box-shadow: var(--home-shadow-md);
+}
+
+.routex-home-root .metric-header {
+  margin-bottom: 4px;
+}
+
+.routex-home-root .metric-label {
+  font-size: 11px;
+  color: var(--home-text-muted);
+  font-weight: 500;
+  font-family: var(--font-geist-sans), sans-serif;
+}
+
+.routex-home-root .metric-body {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.routex-home-root .metric-number {
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--home-text-heading);
+  letter-spacing: -0.02em;
+  line-height: 1;
+}
+
+.routex-home-root .metric-sparkline-svg {
+  width: 120px;
+  height: 26px;
+}
+
+/* ─── Hero Map Column ──────────────────────────────────────── */
+.routex-home-root .home-hero-right {
+  position: relative;
+  width: 100%;
+  height: 580px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.routex-home-root .hero-map-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 20px;
+  overflow: hidden;
+  background-color: #EDF3EB;
+  border: 1.5px solid var(--home-border);
+  box-shadow: var(--home-shadow-lg);
+}
+
+.routex-home-root .hero-map-backdrop {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+.routex-home-root .hero-map-svg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Map Overlays: Location Badges */
+.routex-home-root .map-badge-pin {
+  position: absolute;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--home-border);
+  border-radius: 9999px;
+  padding: 5px 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--home-text-heading);
+  box-shadow: 0 2px 10px rgba(25, 59, 50, 0.12);
+  pointer-events: none;
+}
+
+.routex-home-root .map-badge-pin .badge-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--home-emerald);
+}
+
+.routex-home-root .badge-guwahati {
+  top: 45%;
+  left: 20%;
+}
+
+.routex-home-root .badge-tawang {
+  top: 18%;
+  right: 15%;
+}
+
+.routex-home-root .badge-imphal {
+  top: 72%;
+  right: 28%;
+}
+
+.routex-home-root .map-text-pin {
+  position: absolute;
+  color: var(--home-text-muted);
+  font-size: 11px;
+  font-weight: 600;
+  pointer-events: none;
+}
+
+.routex-home-root .badge-kohima {
+  top: 36%;
+  right: 18%;
+}
+
+/* Travel Time Tags */
+.routex-home-root .map-time-tag {
+  position: absolute;
+  background: #193B32;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 9999px;
+  padding: 4px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #FFFFFF;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+}
+
+.routex-home-root .time-tag-1 {
+  top: 31%;
+  left: 58%;
+}
+
+.routex-home-root .time-tag-2 {
+  top: 72%;
+  right: 17%;
+}
+
+/* Hazard Badge */
+.routex-home-root .map-hazard-badge {
+  position: absolute;
+  top: 56%;
+  left: 56%;
+  background: #FFFFFF;
+  border: 1.5px solid var(--home-amber);
+  border-radius: 9999px;
+  padding: 5px 14px;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--home-amber);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  box-shadow: 0 2px 10px rgba(217, 119, 6, 0.18);
+  pointer-events: none;
+}
+
+/* Compass */
+.routex-home-root .map-hud-compass {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  pointer-events: none;
+}
+
+.routex-home-root .compass-circle {
+  position: relative;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 1.5px solid var(--home-border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: bold;
+  color: var(--home-text-heading);
+  box-shadow: var(--home-shadow-sm);
+}
+
+.routex-home-root .compass-n { position: absolute; top: 3px; color: var(--home-emerald); }
+.routex-home-root .compass-s { position: absolute; bottom: 3px; }
+.routex-home-root .compass-w { position: absolute; left: 4px; }
+.routex-home-root .compass-e { position: absolute; right: 4px; }
+
+.routex-home-root .compass-needle {
+  width: 2px;
+  height: 18px;
+  background: linear-gradient(to bottom, var(--home-emerald) 50%, #C4D1C6 50%);
+}
+
+/* Controls */
+.routex-home-root .map-hud-controls {
+  position: absolute;
+  top: 74px;
+  right: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.routex-home-root .map-btn {
+  width: 32px;
+  height: 32px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--home-border);
+  border-radius: 8px;
+  color: var(--home-text-heading);
+  font-size: 14px;
+  font-weight: bold;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: var(--home-shadow-xs);
+}
+
+.routex-home-root .map-btn:hover {
+  background: var(--home-bg-soft);
+  border-color: var(--home-mint-border);
+  color: var(--home-emerald);
+}
+
+.routex-home-root .map-illustrative-tag {
+  position: absolute;
+  bottom: 12px;
+  right: 16px;
+  font-size: 9px;
+  font-family: var(--font-geist-mono, monospace);
+  color: var(--home-text-muted);
+  letter-spacing: 0.1em;
+  opacity: 0.75;
+}
+
+/* ─── Shared Section Layouts ───────────────────────────────── */
+.routex-home-root .home-section {
+  padding: 100px 0;
+  position: relative;
+  scroll-margin-top: 80px;
+}
+
+.routex-home-root .home-section-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+.routex-home-root .home-section-header {
+  text-align: center;
+  max-width: 680px;
+  margin: 0 auto 60px;
+}
+
+.routex-home-root .home-section-eyebrow {
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  color: var(--home-emerald);
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+
+.routex-home-root .home-section-title {
+  font-size: clamp(32px, 3.8vw, 44px);
+  font-weight: 800;
+  color: var(--home-text-heading);
+  letter-spacing: -0.02em;
+  margin: 0 0 16px;
+}
+
+.routex-home-root .home-section-desc {
+  font-size: 16px;
+  color: var(--home-text-sub);
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ─── How It Works ─────────────────────────────────────────── */
+.routex-home-root .home-howitworks-section {
+  background-color: var(--home-bg-soft);
+  border-top: 1px solid var(--home-border-subtle);
+}
+
+.routex-home-root .howitworks-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.routex-home-root .howitworks-card {
+  position: relative;
+  background: #FFFFFF;
+  border: 1.5px solid var(--home-border);
+  border-radius: 16px;
+  padding: 32px 24px;
+  box-shadow: var(--home-shadow-sm);
+  transition: all 0.25s ease;
+}
+
+.routex-home-root .howitworks-card:hover {
+  border-color: var(--home-mint-border);
+  transform: translateY(-4px);
+  box-shadow: var(--home-shadow-md);
+}
+
+.routex-home-root .howitworks-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.routex-home-root .howitworks-step-num {
+  font-family: var(--font-geist-mono, monospace);
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--home-emerald);
+}
+
+.routex-home-root .howitworks-icon-circle {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--home-mint);
+  border: 1px solid var(--home-mint-border);
+  color: var(--home-emerald);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.routex-home-root .howitworks-card-title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--home-text-heading);
+  margin: 0 0 10px;
+}
+
+.routex-home-root .howitworks-card-desc {
+  font-size: 14px;
+  color: var(--home-text-sub);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.routex-home-root .howitworks-connector {
+  position: absolute;
+  right: -16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--home-emerald);
+  font-size: 18px;
+  font-weight: bold;
+  z-index: 5;
+}
+
+.routex-home-root .home-operational-notice {
+  margin-top: 48px;
+  padding: 14px 20px;
+  border-radius: 10px;
+  background: #FFFFFF;
+  border: 1.5px solid var(--home-border);
+  color: var(--home-text-sub);
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  max-width: 820px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: var(--home-shadow-xs);
+}
+
+.routex-home-root .notice-icon {
+  color: var(--home-emerald);
+  font-weight: bold;
+}
+
+/* ─── Features Section ─────────────────────────────────────── */
+.routex-home-root .home-features-section {
+  background-color: var(--home-bg);
+  border-top: 1px solid var(--home-border-subtle);
+}
+
+.routex-home-root .features-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 28px;
+}
+
+.routex-home-root .feature-card {
+  background: #FFFFFF;
+  border: 1.5px solid var(--home-border);
+  border-radius: 16px;
+  padding: 36px 32px;
+  box-shadow: var(--home-shadow-sm);
+  transition: all 0.25s ease;
+}
+
+.routex-home-root .feature-card:hover {
+  border-color: var(--home-mint-border);
+  box-shadow: var(--home-shadow-md);
+  transform: translateY(-3px);
+}
+
+.routex-home-root .feature-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.routex-home-root .feature-card-icon {
+  width: 46px;
+  height: 46px;
+  border-radius: 12px;
+  background: var(--home-mint);
+  border: 1px solid var(--home-mint-border);
+  color: var(--home-emerald);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.routex-home-root .feature-status-tag {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font-geist-mono, monospace);
+  padding: 4px 10px;
+  border-radius: 6px;
+  text-transform: uppercase;
+}
+
+.routex-home-root .tag-live {
+  background: var(--home-mint);
+  border: 1px solid var(--home-mint-border);
+  color: var(--home-primary);
+}
+
+.routex-home-root .tag-planned {
+  background: var(--home-amber-bg);
+  border: 1px solid var(--home-amber-border);
+  color: var(--home-amber);
+}
+
+.routex-home-root .feature-card-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--home-text-heading);
+  margin: 0 0 12px;
+}
+
+.routex-home-root .feature-card-desc {
+  font-size: 15px;
+  color: var(--home-text-sub);
+  line-height: 1.6;
+  margin: 0 0 24px;
+}
+
+.routex-home-root .feature-card-footer {
+  border-top: 1px solid var(--home-border-subtle);
+  padding-top: 16px;
+}
+
+.routex-home-root .feature-card-link {
+  color: var(--home-emerald);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.routex-home-root .feature-card-link:hover {
+  color: var(--home-emerald-hover);
+  text-decoration: underline;
+}
+
+/* ─── About Section ────────────────────────────────────────── */
+.routex-home-root .home-about-section {
+  background-color: var(--home-bg-soft);
+  border-top: 1px solid var(--home-border-subtle);
+}
+
+.routex-home-root .about-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 1fr;
+  gap: 50px;
+  align-items: center;
+}
+
+.routex-home-root .about-left {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.routex-home-root .about-body-text {
+  font-size: 16px;
+  color: var(--home-text-sub);
+  line-height: 1.7;
+  margin: 0;
+}
+
+.routex-home-root .about-body-text strong {
+  color: var(--home-text-heading);
+}
+
+.routex-home-root .about-cta-row {
+  margin-top: 12px;
+}
+
+.routex-home-root .about-primary-btn {
+  display: inline-flex;
+  align-items: center;
+  padding: 12px 26px;
+  border-radius: 9999px;
+  background: var(--home-emerald);
+  color: #FFFFFF;
+  font-size: 15px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 10px rgba(22, 167, 121, 0.25);
+}
+
+.routex-home-root .about-primary-btn:hover {
+  background: var(--home-emerald-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(22, 167, 121, 0.35);
+}
+
+.routex-home-root .about-spec-box {
+  background: #FFFFFF;
+  border: 1.5px solid var(--home-border);
+  border-radius: 16px;
+  padding: 32px 28px;
+  box-shadow: var(--home-shadow-sm);
+}
+
+.routex-home-root .spec-box-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--home-text-heading);
+  margin: 0 0 20px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--home-border-subtle);
+}
+
+.routex-home-root .spec-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.routex-home-root .spec-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 14px;
+  color: var(--home-text-sub);
+  line-height: 1.55;
+}
+
+.routex-home-root .spec-bullet {
+  color: var(--home-emerald);
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.routex-home-root .spec-item strong {
+  color: var(--home-text-heading);
+}
+
+/* ─── Footer ───────────────────────────────────────────────── */
+.routex-home-root .home-footer {
+  background-color: var(--home-bg-soft);
+  border-top: 1px solid var(--home-border);
+  padding: 80px 0 40px;
+  scroll-margin-top: 80px;
+}
+
+.routex-home-root .home-footer-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 28px;
+}
+
+.routex-home-root .footer-grid {
+  display: grid;
+  grid-template-columns: 1.8fr 1fr 1fr 1fr 1.2fr;
+  gap: 40px;
+  margin-bottom: 60px;
+}
+
+.routex-home-root .footer-brand {
+  font-size: 26px;
+  font-weight: 900;
+  text-decoration: none;
+  letter-spacing: -0.03em;
+  display: inline-block;
+  margin-bottom: 12px;
+}
+
+.routex-home-root .brand-route { color: var(--home-text-heading); }
+.routex-home-root .brand-x { color: var(--home-emerald); }
+
+.routex-home-root .footer-brand-desc {
+  font-size: 14px;
+  color: var(--home-text-sub);
+  line-height: 1.6;
+  max-width: 320px;
+  margin: 0 0 20px;
+}
+
+.routex-home-root .footer-social-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.routex-home-root .social-link {
+  width: 34px;
+  height: 34px;
+  border-radius: 8px;
+  background: #FFFFFF;
+  border: 1px solid var(--home-border);
+  color: var(--home-emerald);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  box-shadow: var(--home-shadow-xs);
+}
+
+.routex-home-root .social-link:hover {
+  background: var(--home-emerald);
+  color: #FFFFFF;
+  border-color: var(--home-emerald);
+  transform: translateY(-2px);
+}
+
+.routex-home-root .footer-heading {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--home-text-heading);
+  margin: 0 0 20px;
+}
+
+.routex-home-root .footer-links {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.routex-home-root .footer-link {
+  color: var(--home-text-sub);
+  font-size: 14px;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.routex-home-root .footer-link:hover {
+  color: var(--home-emerald);
+}
+
+.routex-home-root .footer-link-muted {
+  color: var(--home-text-muted);
+  font-size: 13px;
+}
+
+.routex-home-root .footer-badge-planned {
+  font-size: 10px;
+  font-family: var(--font-geist-mono, monospace);
+  color: var(--home-amber);
+  background: var(--home-amber-bg);
+  border: 1px solid var(--home-amber-border);
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+}
+
+.routex-home-root .footer-contact-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.routex-home-root .contact-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--home-text-sub);
+}
+
+.routex-home-root .contact-icon {
+  color: var(--home-emerald);
+}
+
+.routex-home-root .contact-link {
+  color: var(--home-text-main);
+  text-decoration: none;
+}
+
+.routex-home-root .contact-link:hover {
+  color: var(--home-emerald);
+  text-decoration: underline;
+}
+
+.routex-home-root .footer-bottom-bar {
+  border-top: 1px solid var(--home-border);
+  padding-top: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 13px;
+  color: var(--home-text-muted);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+/* ─── Responsive Media Queries ─────────────────────────────── */
+@media (max-width: 1024px) {
+  .routex-home-root .home-hero-container {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+  .routex-home-root .home-hero-right {
+    height: 520px;
+  }
+  .routex-home-root .howitworks-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .routex-home-root .howitworks-connector {
+    display: none;
+  }
+  .routex-home-root .footer-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (max-width: 768px) {
+  .routex-home-root .home-nav-menu,
+  .routex-home-root .home-nav-actions .home-signin-link,
+  .routex-home-root .home-nav-actions .home-getstarted-btn {
+    display: none;
+  }
+  .routex-home-root .home-mobile-toggle {
+    display: flex;
+  }
+  .routex-home-root .features-grid,
+  .routex-home-root .about-grid {
+    grid-template-columns: 1fr;
+  }
+  .routex-home-root .footer-grid {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+  .routex-home-root .home-hero-title {
+    font-size: 42px;
+  }
+  .routex-home-root .home-hero-right {
+    height: 440px;
+  }
+}
+
+@media (max-width: 480px) {
+  .routex-home-root .home-hero-title {
+    font-size: 34px;
+  }
+  .routex-home-root .home-hero-cta-row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .routex-home-root .home-primary-cta,
+  .routex-home-root .home-secondary-cta {
+    justify-content: center;
+  }
+  .routex-home-root .howitworks-grid {
+    grid-template-columns: 1fr;
+  }
+  .routex-home-root .home-hero-right {
+    height: 360px;
+  }
+  .routex-home-root .badge-kohima,
+  .routex-home-root .time-tag-1,
+  .routex-home-root .time-tag-2 {
+    display: none;
+  }
+  .routex-home-root .home-metric-card {
+    left: 12px;
+    bottom: 12px;
+    min-width: 220px;
+    padding: 8px 12px;
+  }
+}
+
+/* ─── Reduced Motion ───────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .routex-home-root,
+  .routex-home-root * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

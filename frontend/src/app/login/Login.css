@@ -1,0 +1,598 @@
+/* ================================================================
+   RouteX Login Page — Scoped to .rx-login-root
+   Pastel sage/mint flat-map theme matching the design reference.
+   ================================================================ */
+
+html:has(.rx-login-root),
+body:has(.rx-login-root) {
+  background-color: #EAF2E7 !important;
+}
+
+.rx-login-root {
+  position: relative;
+  min-height: 100vh;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: transparent;
+  font-family: var(--font-inter, "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif);
+  overflow-x: hidden;
+  color: #174D3A;
+}
+
+.rx-login-map-bg {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  background-color: #EAF2E7;
+}
+
+.rx-login-header {
+  position: relative;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 32px;
+  height: 60px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(22, 167, 121, 0.16);
+}
+
+.rx-login-header-home {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  text-decoration: none;
+  color: #174D3A;
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 6px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(22, 167, 121, 0.25);
+  background: rgba(221, 244, 232, 0.65);
+  transition: background 0.2s, border-color 0.2s, color 0.2s;
+}
+.rx-login-header-home:hover,
+.rx-login-header-home:focus-visible {
+  background: #DDF4E8;
+  border-color: #16A779;
+  color: #0B3027;
+  outline: none;
+}
+.rx-login-header-home:focus-visible {
+  outline: 2px solid #16A779;
+  outline-offset: 2px;
+}
+
+.rx-login-header-logo {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 26px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  text-decoration: none;
+  display: flex;
+  align-items: baseline;
+  transition: transform 0.15s ease;
+}
+.rx-login-header-logo:hover {
+  transform: translateX(-50%) scale(1.02);
+}
+.rx-logo-route { color: #0B3027; }
+.rx-logo-x     { color: #16A779; }
+
+.rx-card-brand-header {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 18px;
+}
+.rx-card-brand-wordmark {
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  display: inline-flex;
+  align-items: baseline;
+}
+
+.rx-login-body {
+  position: relative;
+  z-index: 10;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 32px;
+  padding: 44px 24px 40px;
+}
+
+.rx-auth-card {
+  width: 100%;
+  max-width: 420px;
+  background: #FDFEFC;
+  border: 1.5px solid rgba(22, 167, 121, 0.20);
+  border-radius: 20px;
+  padding: 32px 34px 28px;
+  box-shadow:
+    0 4px 20px rgba(11, 48, 39, 0.06),
+    0 12px 36px rgba(11, 48, 39, 0.05);
+}
+
+.rx-tab-row {
+  display: flex;
+  background: #EAF2E7;
+  border-radius: 30px;
+  padding: 4px;
+  margin-bottom: 22px;
+  gap: 4px;
+}
+
+.rx-tab-btn {
+  flex: 1;
+  padding: 8px 0;
+  border: none;
+  border-radius: 24px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s;
+  background: transparent;
+  color: #557265;
+  font-family: inherit;
+}
+.rx-tab-btn:focus-visible {
+  outline: 2px solid #16A779;
+  outline-offset: 1px;
+}
+.rx-tab-btn[aria-selected="true"] {
+  background: #174D3A;
+  color: #ffffff;
+  box-shadow: 0 2px 8px rgba(11, 48, 39, 0.22);
+}
+
+.rx-card-title {
+  font-size: 24px;
+  font-weight: 800;
+  color: #0B3027;
+  margin: 0 0 16px 0;
+  letter-spacing: -0.025em;
+  text-align: center;
+}
+
+.rx-card-sub {
+  font-size: 13.5px;
+  color: #557265;
+  margin: -6px 0 20px 0;
+  line-height: 1.5;
+  text-align: center;
+}
+
+.rx-role-label {
+  font-size: 12.5px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #2F594A;
+  margin-bottom: 10px;
+  display: block;
+}
+
+.rx-role-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.rx-role-card {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1.5px solid #D2DFD5;
+  background: #ffffff;
+  cursor: pointer;
+  transition: border-color 0.15s, background 0.15s, box-shadow 0.15s, transform 0.1s;
+  text-align: center;
+  outline: none;
+  font-family: inherit;
+}
+.rx-role-card:focus-visible {
+  outline: 2px solid #16A779;
+  outline-offset: 1px;
+}
+.rx-role-card[aria-pressed="true"] {
+  border-color: #16A779;
+  background: #E8F7F0;
+  box-shadow: 0 0 0 3px rgba(22, 167, 121, 0.14);
+}
+.rx-role-card:hover:not([aria-pressed="true"]) {
+  border-color: rgba(22, 167, 121, 0.5);
+  background: rgba(221, 244, 232, 0.35);
+  transform: translateY(-1px);
+}
+
+.rx-role-icon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: rgba(22, 167, 121, 0.12);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #174D3A;
+}
+
+.rx-role-text-name {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0B3027;
+  letter-spacing: -0.01em;
+}
+
+.rx-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.rx-field-label {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #174D3A;
+}
+
+.rx-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.rx-input-icon {
+  position: absolute;
+  left: 14px;
+  color: #658476;
+  pointer-events: none;
+  display: flex;
+  align-items: center;
+}
+
+.rx-input {
+  width: 100%;
+  padding: 11px 14px 11px 40px;
+  border-radius: 10px;
+  border: 1.5px solid #D2DFD5;
+  background: #ffffff;
+  color: #0B3027;
+  font-size: 14.5px;
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  box-sizing: border-box;
+}
+.rx-input::placeholder { color: #8BA89B; }
+.rx-input:focus {
+  border-color: #16A779;
+  box-shadow: 0 0 0 3px rgba(22, 167, 121, 0.15);
+}
+.rx-input--error {
+  border-color: #E05252 !important;
+  box-shadow: 0 0 0 3px rgba(224, 82, 82, 0.12) !important;
+}
+.rx-input--pw { padding-right: 44px; }
+
+.rx-pw-toggle {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #658476;
+  display: flex;
+  align-items: center;
+  padding: 5px;
+  border-radius: 6px;
+  transition: color 0.2s;
+}
+.rx-pw-toggle:hover { color: #174D3A; }
+.rx-pw-toggle:focus-visible {
+  outline: 2px solid #16A779;
+  outline-offset: 1px;
+}
+
+.rx-field-err {
+  font-size: 12px;
+  color: #C0392B;
+  margin-top: 2px;
+}
+
+.rx-remember-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.rx-remember-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13.5px;
+  color: #174D3A;
+  cursor: pointer;
+  user-select: none;
+}
+
+.rx-checkbox {
+  width: 17px;
+  height: 17px;
+  accent-color: #16A779;
+  cursor: pointer;
+  flex-shrink: 0;
+  border-radius: 4px;
+}
+
+.rx-forgot-link {
+  font-size: 13.5px;
+  font-weight: 600;
+  color: #16A779;
+  text-decoration: none;
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.2s;
+  font-family: inherit;
+}
+.rx-forgot-link:hover { color: #0D8860; text-decoration: underline; }
+.rx-forgot-link:focus-visible {
+  outline: 2px solid #16A779;
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.rx-primary-btn {
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: 11px;
+  background: #174D3A;
+  border: none;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+  box-shadow: 0 3px 10px rgba(11, 48, 39, 0.2);
+}
+.rx-primary-btn:hover:not(:disabled) {
+  background: #16A779;
+  transform: translateY(-1px);
+  box-shadow: 0 5px 18px rgba(22, 167, 121, 0.32);
+}
+.rx-primary-btn:focus-visible {
+  outline: 2px solid #16A779;
+  outline-offset: 2px;
+}
+.rx-primary-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+.rx-or-divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 16px 0;
+  color: #8BA89B;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+}
+.rx-or-divider::before,
+.rx-or-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: #D2DFD5;
+}
+
+.rx-secondary-btn {
+  width: 100%;
+  padding: 11px 20px;
+  border-radius: 11px;
+  border: 1.5px solid #D2DFD5;
+  background: transparent;
+  color: #0B3027;
+  font-size: 14.5px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.2s, background 0.2s;
+}
+.rx-secondary-btn:hover {
+  border-color: #16A779;
+  background: rgba(221, 244, 232, 0.45);
+}
+.rx-secondary-btn:focus-visible {
+  outline: 2px solid #16A779;
+  outline-offset: 2px;
+}
+
+.rx-return-home {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  margin-top: 18px;
+  font-size: 13.5px;
+  color: #557265;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+.rx-return-home:hover { color: #174D3A; }
+.rx-return-home:focus-visible {
+  outline: 2px solid #16A779;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.rx-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2.5px solid rgba(255,255,255,0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: rxSpin 0.75s linear infinite;
+  flex-shrink: 0;
+}
+@keyframes rxSpin {
+  to { transform: rotate(360deg); }
+}
+
+.rx-err-banner {
+  display: flex;
+  gap: 9px;
+  padding: 10px 14px;
+  border-radius: 9px;
+  font-size: 13px;
+  line-height: 1.45;
+  margin-bottom: 14px;
+  background: rgba(224, 82, 82, 0.09);
+  border: 1px solid rgba(224, 82, 82, 0.32);
+  color: #9B2020;
+}
+
+.rx-info-banner {
+  display: flex;
+  gap: 9px;
+  padding: 10px 14px;
+  border-radius: 9px;
+  font-size: 13px;
+  line-height: 1.45;
+  margin-bottom: 14px;
+  background: rgba(22, 167, 121, 0.08);
+  border: 1px solid rgba(22, 167, 121, 0.28);
+  color: #174D3A;
+}
+
+.rx-terms-text {
+  font-size: 12px;
+  color: #658476;
+  text-align: center;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+
+.rx-signin-link-row {
+  text-align: center;
+  margin-top: 16px;
+  font-size: 13.5px;
+  color: #557265;
+}
+.rx-signin-link-row button {
+  background: none;
+  border: none;
+  color: #16A779;
+  font-weight: 600;
+  cursor: pointer;
+  font-size: 13.5px;
+  padding: 0;
+  font-family: inherit;
+}
+.rx-signin-link-row button:hover { text-decoration: underline; }
+.rx-signin-link-row button:focus-visible {
+  outline: 2px solid #16A779;
+  outline-offset: 2px;
+  border-radius: 3px;
+}
+
+.rx-side-panel {
+  width: 230px;
+  flex-shrink: 0;
+  background: rgba(248, 248, 240, 0.94);
+  border: 1px solid rgba(22, 167, 121, 0.22);
+  border-radius: 16px;
+  padding: 20px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 4px 16px rgba(11, 48, 39, 0.06);
+  backdrop-filter: blur(10px);
+}
+
+.rx-side-time {
+  font-size: 13.5px;
+  font-weight: 700;
+  color: #0B3027;
+  text-align: right;
+}
+
+.rx-side-route-line {
+  width: 100%;
+  height: 28px;
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.rx-side-panel-label {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0B3027;
+  line-height: 1.3;
+}
+
+.rx-side-panel-sub {
+  font-size: 12.5px;
+  color: #557265;
+  line-height: 1.45;
+}
+
+.rx-side-demo-tag {
+  font-size: 11px;
+  font-weight: 600;
+  color: #16A779;
+  border-top: 1px solid #D2DFD5;
+  padding-top: 10px;
+  margin-top: 4px;
+  letter-spacing: 0.02em;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rx-spinner { animation: none; border-top-color: #ffffff; }
+  .rx-primary-btn, .rx-secondary-btn, .rx-role-card, .rx-tab-btn { transition: none; }
+}
+
+@media (max-width: 860px) {
+  .rx-side-panel { display: none; }
+  .rx-login-body { padding: 32px 16px 32px; }
+}
+
+@media (max-width: 480px) {
+  .rx-auth-card { padding: 24px 20px 22px; border-radius: 16px; }
+  .rx-login-header { padding: 0 16px; }
+  .rx-login-header-logo { font-size: 22px; }
+}
+
+@media (max-width: 360px) {
+  .rx-role-grid { grid-template-columns: 1fr; }
+}
