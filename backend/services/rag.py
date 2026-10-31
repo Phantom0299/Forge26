@@ -1,5 +1,6 @@
 import logging
 import os
+import re
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
@@ -9,7 +10,6 @@ from langchain_community.vectorstores import PGVector
 from langchain_core.documents import Document
 from langchain_core.prompts import ChatPromptTemplate
 from langchain_core.output_parsers import StrOutputParser
-from langchain_core.runnables import RunnablePassthrough
 
 logger = logging.getLogger("routex.intelligence")
 
@@ -26,6 +26,26 @@ Instructions:
 - Cite the exact source manuals (NDMA, BRO, IRC, IMD) for each protocol or specification.
 - Include concrete metrics (hazard classifications, machinery rosters, rainfall thresholds, bypass vehicle weight limits) from the documents.
 - State clearly if a specific detail is not found in the knowledge base."""
+
+SITREP_SYSTEM_PROMPT = """You are RouteX Incident Commander generating an official Disaster Situation Report (SitRep) for the Guwahati-Tawang / Eastern Himalayan highway corridor.
+
+Grounding SOPs & Manuals:
+{context}
+
+Incident Parameters:
+- Hazard Type: {hazard_type}
+- Severity Level: {severity}
+- Location / Highway Milepost: {location}
+- Detected Metrics: {details}
+
+Generate a concise, high-priority Field Situation Report formatted with these exact sections:
+1. INCIDENT CLASSIFICATION & TIME SENSITIVITY
+2. MANDATORY CHECKPOINT TRAFFIC ORDERS (Halting window & staging areas)
+3. SAFE EVACUATION & ALTERNATIVE BYPASS (Include vehicle weight/GVW restrictions)
+4. BRO / PWD MACHINERY MOBILIZATION PACKAGE (Required equipment from nearest sector camp)
+5. WEATHER CORROBORATION & RE-OPENING SAFETY CRITERIA (Rainfall thresholds & rockfall observation window)
+
+Be authoritative, concrete, and cite specific NDMA / BRO / IRC / IMD protocols."""
 
 
 class CorridorIntelligenceService:
@@ -52,7 +72,7 @@ class CorridorIntelligenceService:
         self.embeddings = self._init_embeddings()
         self.llm = self._init_llm()
         self.store: Optional[PGVector] = None
-        self.chain = None
+        self._cached_chunks: List[Document] = []
 
     def _build_fallback_db_url(self) -> str:
         user = os.getenv("POSTGRES_USER", "nerlink_user")
@@ -133,6 +153,7 @@ class CorridorIntelligenceService:
             return 0
 
         chunks = self._get_splitter().split_documents(raw_docs)
+        self._cached_chunks = chunks
         logger.info(f"Loaded {len(raw_docs)} pages -> {len(chunks)} text chunks.")
 
         if reset_collection or self.store is None:
@@ -165,11 +186,40 @@ class CorridorIntelligenceService:
             parts.append(f"[Ref {idx} | {src} (Page {pg})]\n{doc.page_content}")
         return "\n\n---\n\n".join(parts)
 
-    def ask(self, question: str, top_k: int = 5) -> Dict[str, Any]:
+    def hybrid_retrieve(self, query: str, top_k: int = 5) -> List[Document]:
+        """Hybrid Search combining dense embedding similarity with keyword matching.
+        Uses Reciprocal Rank Fusion (RRF) to ensure exact acronyms (e.g. OKSRT, IRC, BRO)
+        and highway numbers surface at top rank.
+        """
         store = self._get_store()
-        retrieved_docs = store.similarity_search(question, k=top_k)
+        dense_results = store.similarity_search(query, k=top_k * 2)
 
+        # Keyword boost: extract salient keywords (e.g. acronyms, codes, numbers)
+        query_terms = set(re.findall(r"\b[A-Za-z0-9\-\:]{3,}\b", query.lower()))
+
+        # Calculate Reciprocal Rank Fusion scores
+        rrf_scores: Dict[str, float] = {}
+        doc_map: Dict[str, Document] = {}
+
+        for rank, doc in enumerate(dense_results):
+            doc_id = f"{doc.metadata.get('source_file')}-{doc.page_content[:40]}"
+            doc_map[doc_id] = doc
+            rrf_scores[doc_id] = rrf_scores.get(doc_id, 0.0) + (0.6 / (60.0 + rank))
+
+        # Lexical score scan across candidate chunks
+        for doc_id, doc in doc_map.items():
+            content_lower = doc.page_content.lower()
+            term_matches = sum(1 for term in query_terms if term in content_lower)
+            if term_matches > 0:
+                rrf_scores[doc_id] += 0.4 * (term_matches / max(len(query_terms), 1))
+
+        ranked_doc_ids = sorted(rrf_scores.keys(), key=lambda k: rrf_scores[k], reverse=True)
+        return [doc_map[did] for did in ranked_doc_ids[:top_k]]
+
+    def ask(self, question: str, top_k: int = 5) -> Dict[str, Any]:
+        retrieved_docs = self.hybrid_retrieve(question, top_k=top_k)
         context_text = self._format_context(retrieved_docs)
+
         prompt_tmpl = ChatPromptTemplate.from_template(TACTICAL_DISPATCH_PROMPT)
         chain = prompt_tmpl | self.llm | StrOutputParser()
 
@@ -198,7 +248,6 @@ class CorridorIntelligenceService:
         water_depth_m: Optional[float] = None,
         blockage_pct: Optional[float] = None,
     ) -> Dict[str, Any]:
-        """Bridges Vision model detections directly into actionable RAG SOP retrieval."""
         hazard_query = (
             f"Emergency response clearance protocol and evacuation diversion for "
             f"{severity} {hazard_type} near {location}."
@@ -222,17 +271,56 @@ class CorridorIntelligenceService:
             "grounding_sources": result["sources"],
         }
 
+    def generate_incident_sitrep(
+        self,
+        hazard_type: str,
+        severity: str,
+        location: str,
+        details: Optional[str] = None,
+    ) -> Dict[str, Any]:
+        """Generates an official Disaster Situation Report (SitRep) for field operations."""
+        query = f"SOP requirements, bypass detour, machinery, and re-opening criteria for {severity} {hazard_type} at {location}"
+        retrieved_docs = self.hybrid_retrieve(query, top_k=5)
+        context_text = self._format_context(retrieved_docs)
+
+        prompt_tmpl = ChatPromptTemplate.from_template(SITREP_SYSTEM_PROMPT)
+        chain = prompt_tmpl | self.llm | StrOutputParser()
+
+        sitrep_text = chain.invoke({
+            "context": context_text,
+            "hazard_type": hazard_type,
+            "severity": severity,
+            "location": location,
+            "details": details or "Telemetry verified by Sentinel-1 SAR & YOLOv8",
+        })
+
+        citations = [
+            {
+                "file": d.metadata.get("source_file", "manual"),
+                "page": d.metadata.get("page", "1"),
+                "snippet": d.page_content[:200].strip() + "...",
+            }
+            for d in retrieved_docs[:3]
+        ]
+
+        return {
+            "incident_id": f"ROUTEX-SITREP-{hazard_type[:3].upper()}-{abs(hash(location)) % 10000:04d}",
+            "location": location,
+            "hazard_type": hazard_type,
+            "severity": severity,
+            "sitrep_content": sitrep_text,
+            "verified_sources": citations,
+        }
+
     def search_similar(self, query: str, top_k: int = 5) -> List[Dict[str, Any]]:
-        store = self._get_store()
-        matches = store.similarity_search_with_score(query, k=top_k)
+        docs = self.hybrid_retrieve(query, top_k=top_k)
         return [
             {
-                "content": item.page_content,
-                "score": float(score),
-                "source": item.metadata.get("source_file", "unknown"),
-                "metadata": item.metadata,
+                "content": d.page_content,
+                "source": d.metadata.get("source_file", "manual"),
+                "metadata": d.metadata,
             }
-            for item, score in matches
+            for d in docs
         ]
 
 

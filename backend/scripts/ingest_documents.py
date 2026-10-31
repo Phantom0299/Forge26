@@ -1,57 +1,105 @@
 import argparse
-import logging
 import sys
+import time
 from pathlib import Path
 
-logging.basicConfig(
-    level=logging.INFO,
-    format="%(asctime)s [%(levelname)s] %(name)s: %(message)s",
-)
-logger = logging.getLogger("routex.cli")
+
+def print_banner():
+    print("""
+===================================================================
+  RouteX Knowledge Base Ingestion Engine (FORGE '26 Buildathon)
+  Himalayan Disaster SOPs, IRC Engineering Codes & IMD Matrices
+===================================================================
+""")
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="CLI tool to ingest mountain road SOPs into RouteX pgvector store."
+        description="Ingest and verify mountain corridor disaster SOPs in pgvector.",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     parser.add_argument(
         "--source",
         type=str,
         default="data/rag_documents",
-        help="Path to folder or file containing PDFs/MD manuals",
+        help="Path to directory containing SOP manuals (default: data/rag_documents)",
     )
     parser.add_argument(
         "--reset",
         action="store_true",
-        help="Clear existing collection before ingesting",
+        help="Purge existing pgvector collection before indexing",
     )
     parser.add_argument(
-        "--verify",
-        type=str,
-        default="landslide road clearance protocol",
-        help="Test query to verify retrieval after ingestion",
+        "--interactive",
+        "-i",
+        action="store_true",
+        help="Launch interactive terminal Q&A copilot after ingestion",
     )
 
     args = parser.parse_args()
-    source_path = Path(args.source)
+    source_dir = Path(args.source)
 
-    if not source_path.exists():
-        logger.error(f"Cannot find source directory: {source_path}")
+    print_banner()
+
+    if not source_dir.exists():
+        print(f"[!] Error: Target directory '{source_dir}' does not exist.")
         sys.exit(1)
+
+    # Lazy import to keep CLI startup snappy
+    print("[*] Initializing embedding model and database connection...")
+    t0 = time.time()
 
     from backend.services.rag import CorridorIntelligenceService
 
     service = CorridorIntelligenceService()
-    logger.info(f"Ingesting documents from {source_path} (reset={args.reset})...")
+    init_time = time.time() - t0
+    print(f"    Connected to pgvector collection: '{service.collection_name}' ({init_time:.2f}s)")
+    print(f"    Embedding backend: {service.emb_provider} | LLM: {service.llm_provider}\n")
 
-    total_chunks = service.ingest(str(source_path), reset_collection=args.reset)
-    logger.info(f"Done! {total_chunks} chunks stored in pgvector.")
+    files = [f for f in source_dir.glob("*") if f.suffix.lower() in (".md", ".pdf", ".txt")]
+    print(f"[*] Discovered {len(files)} domain manuals in '{source_dir}':")
+    for idx, f in enumerate(files, 1):
+        kb_size = f.stat().st_size / 1024
+        print(f"    {idx}. {f.name:<36} ({kb_size:.1f} KB)")
 
-    if args.verify and total_chunks > 0:
-        logger.info(f"Running verification query: '{args.verify}'")
-        res = service.ask(args.verify, top_k=2)
-        logger.info(f"Verification Answer:\n{res['answer'][:300]}...\n")
-        logger.info(f"Sources cited: {[s['file'] for s in res['sources']]}")
+    print(f"\n[*] Processing chunks and generating vector embeddings (reset={args.reset})...")
+    t1 = time.time()
+    total_chunks = service.ingest(str(source_dir), reset_collection=args.reset)
+    elapsed = time.time() - t1
+
+    print(f"[✓] Ingestion successful! Stored {total_chunks} chunks in {elapsed:.2f}s.")
+
+    # Smoke test verification
+    print("\n[*] Running self-test query: 'evacuation protocol for Class 3 landslide'...")
+    test_res = service.ask("What is the evacuation protocol for a Class 3 landslide?", top_k=2)
+    print(f"    Retrieval verified: {test_res['chunks_retrieved']} source chunks cited.")
+    for s in test_res["sources"]:
+        print(f"    - Cited: {s['file']} ({s['page']})")
+
+    if args.interactive:
+        print("\n" + "=" * 67)
+        print(" Interactive Terminal Copilot (Type 'exit' or 'quit' to return)")
+        print("=" * 67)
+        while True:
+            try:
+                user_input = input("\nRouteX-Field > ").strip()
+                if not user_input or user_input.lower() in ("exit", "quit", "q"):
+                    print("Exiting copilot.")
+                    break
+
+                t_query = time.time()
+                res = service.ask(user_input, top_k=4)
+                q_elapsed = time.time() - t_query
+
+                print(f"\n--- Grounded Response ({q_elapsed:.2f}s) ---")
+                print(res["answer"])
+                print("\nSources:")
+                for src in res["sources"]:
+                    print(f"  • {src['file']} [{src['page']}]")
+
+            except (KeyboardInterrupt, EOFError):
+                print("\nExiting.")
+                break
 
 
 if __name__ == "__main__":

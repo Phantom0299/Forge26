@@ -46,6 +46,22 @@ class VisionActionResponse(BaseModel):
     grounding_sources: List[Citation]
 
 
+class SitRepRequest(BaseModel):
+    hazard_type: str = Field(..., example="landslide", description="Hazard type: landslide, flood, rockfall, black_ice")
+    severity: str = Field(..., example="Class 3", description="Severity classification")
+    location: str = Field(..., example="NH-10 Km 48 (Siliguri-Gangtok)", description="Location description")
+    details: Optional[str] = Field(default=None, description="Observed field metrics")
+
+
+class SitRepResponse(BaseModel):
+    incident_id: str
+    location: str
+    hazard_type: str
+    severity: str
+    sitrep_content: str
+    verified_sources: List[Citation]
+
+
 class IngestSummary(BaseModel):
     message: str
     chunks_indexed: int
@@ -83,6 +99,26 @@ async def auto_resolve_vision_incident(payload: VisionIncidentPayload):
         return VisionActionResponse(**result)
     except Exception as exc:
         logger.error(f"Vision incident dispatch failed: {exc}")
+        raise HTTPException(status_code=500, detail=str(exc))
+
+
+@router.post("/sitrep", response_model=SitRepResponse)
+async def generate_tactical_sitrep(payload: SitRepRequest):
+    """Generates an official Disaster Situation Report (SitRep) for field operations.
+    Synthesizes NDMA evacuation detour rules, BRO machinery rosters, and IMD weather triggers
+    into a structured tactical document.
+    """
+    try:
+        service = get_intelligence_service()
+        result = service.generate_incident_sitrep(
+            hazard_type=payload.hazard_type,
+            severity=payload.severity,
+            location=payload.location,
+            details=payload.details,
+        )
+        return SitRepResponse(**result)
+    except Exception as exc:
+        logger.error(f"SitRep generation failed: {exc}")
         raise HTTPException(status_code=500, detail=str(exc))
 
 
