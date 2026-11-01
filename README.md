@@ -5,7 +5,8 @@
 **Core Architecture:** Sentinel-1 SAR + YOLOv8 Vision → pgvector Tactical SOP Retrieval → Groq Llama 3.1 Dispatch  
 **Corridor Scope:** Guwahati–Tawang Strategic Highway (NH-13) & Eastern Himalayan Corridors  
 
-RouteX solves climate-induced supply chain disruptions across vulnerable mountain terrains by pairing satellite radar flood mapping and computer vision road damage detection with a closed-loop Retrieval-Augmented Generation (RAG) SOP dispatch engine.
+RouteX solves climate-induced supply chain disruptions across vulnerable mountain terrains by pairing satellite radar flood mapping and computer vision road damage detection with a closed-loop Retrieval-Augmented Generation (RAG) SOP dispatch engine. 
+https://route-x-two.vercel.app/
 
 ---
 
