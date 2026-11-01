@@ -83,12 +83,21 @@ class Settings(BaseSettings):
     SATELLITE_PROVIDER: str = "copernicus_sentinel2"
     SATELLITE_MAX_CLOUD_COVER_PERCENT: float = 40.0
 
-    # RAG & AI Assistant Configuration
+    # RAG & AI Assistant Configuration (Knowledge Base & LLM Dispatch)
     RAG_COLLECTION_NAME: str = "routex_knowledge_base"
     RAG_EMBEDDING_PROVIDER: str = "huggingface"
+    RAG_EMBEDDING_MODEL: str = "BAAI/bge-small-en-v1.5"
     RAG_LLM_PROVIDER: str = "groq"
+    RAG_LLM_MODEL: str = "llama-3.1-8b-instant"
+    RAG_CHUNK_SIZE: int = 800
+    RAG_CHUNK_OVERLAP: int = 150
+    RAG_TOP_K: int = 5
+    RAG_TEMPERATURE: float = 0.1
+    RAG_MAX_TOKENS: int = 2048
+    RAG_DOCUMENTS_DIR: str = "data/rag_documents"
     GROQ_API_KEY: Optional[str] = None
     OPENAI_API_KEY: Optional[str] = None
+    OLLAMA_BASE_URL: str = "http://localhost:11434/v1"
 
     # Authentication & JWT Security
     JWT_SECRET_KEY: str = "nerlink-super-secret-jwt-key-change-in-prod-1234567890"

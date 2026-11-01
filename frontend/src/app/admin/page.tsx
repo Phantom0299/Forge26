@@ -333,7 +333,7 @@ export default function AdminOverviewPage() {
               <div>
                 <span className="text-xs font-bold text-[#193B32] block">API Server</span>
                 <span className="text-[11px] text-[#71877D]">
-                  {isBackendHealthy === null ? "Connecting..." : isBackendHealthy ? "Connected (Port 8000)" : "Offline (Fallback)"}
+                  {isBackendHealthy === null ? "Connecting..." : isBackendHealthy ? "Connected (Port 8000)" : "Offline (Service Unreachable)"}
                 </span>
               </div>
             </div>

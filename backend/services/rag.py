@@ -52,7 +52,9 @@ class CorridorIntelligenceService:
     def __init__(
         self,
         embedding_provider: Optional[str] = None,
+        embedding_model: Optional[str] = None,
         llm_provider: Optional[str] = None,
+        llm_model: Optional[str] = None,
         collection_name: Optional[str] = None,
         connection_string: Optional[str] = None,
     ):
@@ -60,13 +62,33 @@ class CorridorIntelligenceService:
             from backend.config import get_settings
             cfg = get_settings()
             self.emb_provider = embedding_provider or getattr(cfg, "RAG_EMBEDDING_PROVIDER", "huggingface")
+            self.emb_model = embedding_model or getattr(cfg, "RAG_EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5")
             self.llm_provider = llm_provider or getattr(cfg, "RAG_LLM_PROVIDER", "groq")
+            self.llm_model = llm_model or getattr(cfg, "RAG_LLM_MODEL", "llama-3.1-8b-instant")
             self.collection_name = collection_name or getattr(cfg, "RAG_COLLECTION_NAME", "routex_knowledge_base")
+            self.chunk_size = getattr(cfg, "RAG_CHUNK_SIZE", 800)
+            self.chunk_overlap = getattr(cfg, "RAG_CHUNK_OVERLAP", 150)
+            self.default_top_k = getattr(cfg, "RAG_TOP_K", 5)
+            self.temperature = getattr(cfg, "RAG_TEMPERATURE", 0.1)
+            self.max_tokens = getattr(cfg, "RAG_MAX_TOKENS", 2048)
+            self.groq_api_key = getattr(cfg, "GROQ_API_KEY", None) or os.getenv("GROQ_API_KEY")
+            self.openai_api_key = getattr(cfg, "OPENAI_API_KEY", None) or os.getenv("OPENAI_API_KEY")
+            self.ollama_base_url = getattr(cfg, "OLLAMA_BASE_URL", "http://localhost:11434/v1")
             self.db_url = connection_string or cfg.database_url_sync
         except Exception:
-            self.emb_provider = embedding_provider or "huggingface"
-            self.llm_provider = llm_provider or "groq"
-            self.collection_name = collection_name or "routex_knowledge_base"
+            self.emb_provider = embedding_provider or os.getenv("RAG_EMBEDDING_PROVIDER", "huggingface")
+            self.emb_model = embedding_model or os.getenv("RAG_EMBEDDING_MODEL", "BAAI/bge-small-en-v1.5")
+            self.llm_provider = llm_provider or os.getenv("RAG_LLM_PROVIDER", "groq")
+            self.llm_model = llm_model or os.getenv("RAG_LLM_MODEL", "llama-3.1-8b-instant")
+            self.collection_name = collection_name or os.getenv("RAG_COLLECTION_NAME", "routex_knowledge_base")
+            self.chunk_size = int(os.getenv("RAG_CHUNK_SIZE", "800"))
+            self.chunk_overlap = int(os.getenv("RAG_CHUNK_OVERLAP", "150"))
+            self.default_top_k = int(os.getenv("RAG_TOP_K", "5"))
+            self.temperature = float(os.getenv("RAG_TEMPERATURE", "0.1"))
+            self.max_tokens = int(os.getenv("RAG_MAX_TOKENS", "2048"))
+            self.groq_api_key = os.getenv("GROQ_API_KEY")
+            self.openai_api_key = os.getenv("OPENAI_API_KEY")
+            self.ollama_base_url = os.getenv("OLLAMA_BASE_URL", "http://localhost:11434/v1")
             self.db_url = connection_string or self._build_fallback_db_url()
 
         self.embeddings = self._init_embeddings()
@@ -85,10 +107,13 @@ class CorridorIntelligenceService:
     def _init_embeddings(self):
         if self.emb_provider == "openai":
             from langchain_openai import OpenAIEmbeddings
-            return OpenAIEmbeddings(model="text-embedding-3-small")
+            return OpenAIEmbeddings(
+                model=self.emb_model if "text-embedding" in self.emb_model else "text-embedding-3-small",
+                api_key=self.openai_api_key,
+            )
         from langchain_huggingface import HuggingFaceEmbeddings
         return HuggingFaceEmbeddings(
-            model_name="BAAI/bge-small-en-v1.5",
+            model_name=self.emb_model,
             model_kwargs={"device": "cpu"},
             encode_kwargs={"normalize_embeddings": True},
         )
@@ -96,22 +121,32 @@ class CorridorIntelligenceService:
     def _init_llm(self):
         if self.llm_provider == "openai":
             from langchain_openai import ChatOpenAI
-            return ChatOpenAI(model="gpt-4o", temperature=0.1, max_tokens=2048)
+            return ChatOpenAI(
+                model=self.llm_model if "gpt" in self.llm_model else "gpt-4o",
+                temperature=self.temperature,
+                max_tokens=self.max_tokens,
+                api_key=self.openai_api_key,
+            )
         elif self.llm_provider == "groq":
             from langchain_groq import ChatGroq
-            return ChatGroq(model="llama-3.1-8b-instant", temperature=0.1, max_tokens=2048)
+            return ChatGroq(
+                model=self.llm_model,
+                temperature=self.temperature,
+                max_tokens=self.max_tokens,
+                api_key=self.groq_api_key,
+            )
         from langchain_openai import ChatOpenAI
         return ChatOpenAI(
-            base_url="http://localhost:11434/v1",
-            model="llama3",
-            temperature=0.1,
+            base_url=self.ollama_base_url,
+            model=self.llm_model,
+            temperature=self.temperature,
             api_key="ollama",
         )
 
     def _get_splitter(self) -> RecursiveCharacterTextSplitter:
         return RecursiveCharacterTextSplitter(
-            chunk_size=800,
-            chunk_overlap=150,
+            chunk_size=self.chunk_size,
+            chunk_overlap=self.chunk_overlap,
             length_function=len,
             separators=["\n\n", "\n", ". ", ", ", " ", ""],
         )
@@ -186,13 +221,14 @@ class CorridorIntelligenceService:
             parts.append(f"[Ref {idx} | {src} (Page {pg})]\n{doc.page_content}")
         return "\n\n---\n\n".join(parts)
 
-    def hybrid_retrieve(self, query: str, top_k: int = 5) -> List[Document]:
+    def hybrid_retrieve(self, query: str, top_k: Optional[int] = None) -> List[Document]:
         """Hybrid Search combining dense embedding similarity with keyword matching.
         Uses Reciprocal Rank Fusion (RRF) to ensure exact acronyms (e.g. OKSRT, IRC, BRO)
         and highway numbers surface at top rank.
         """
+        k = top_k or self.default_top_k
         store = self._get_store()
-        dense_results = store.similarity_search(query, k=top_k * 2)
+        dense_results = store.similarity_search(query, k=k * 2)
 
         # Keyword boost: extract salient keywords (e.g. acronyms, codes, numbers)
         query_terms = set(re.findall(r"\b[A-Za-z0-9\-\:]{3,}\b", query.lower()))
@@ -214,10 +250,11 @@ class CorridorIntelligenceService:
                 rrf_scores[doc_id] += 0.4 * (term_matches / max(len(query_terms), 1))
 
         ranked_doc_ids = sorted(rrf_scores.keys(), key=lambda k: rrf_scores[k], reverse=True)
-        return [doc_map[did] for did in ranked_doc_ids[:top_k]]
+        return [doc_map[did] for did in ranked_doc_ids[:k]]
 
-    def ask(self, question: str, top_k: int = 5) -> Dict[str, Any]:
-        retrieved_docs = self.hybrid_retrieve(question, top_k=top_k)
+    def ask(self, question: str, top_k: Optional[int] = None) -> Dict[str, Any]:
+        k = top_k or self.default_top_k
+        retrieved_docs = self.hybrid_retrieve(question, top_k=k)
         context_text = self._format_context(retrieved_docs)
 
         prompt_tmpl = ChatPromptTemplate.from_template(TACTICAL_DISPATCH_PROMPT)

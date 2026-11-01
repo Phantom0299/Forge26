@@ -41,6 +41,8 @@ const VISION_PRESETS = [
     hazard: "landslide",
     severity: "Class 3",
     location: "NH-10 Km 48 (Siliguri-Gangtok Corridor)",
+    blockage_pct: 85.0,
+    water_depth_m: undefined,
     promptText: "🚨 Vision Trigger: YOLO detected a Class 3 Landslide with 85% road blockage at Km 48 on NH-10.",
   },
   {
@@ -50,6 +52,8 @@ const VISION_PRESETS = [
     hazard: "flash_flood",
     severity: "Critical",
     location: "Bhalukpong Sector (Guwahati-Tawang Km 18)",
+    blockage_pct: undefined,
+    water_depth_m: 0.42,
     promptText: "🌊 Vision Trigger: Sentinel-1 SAR backscatter drop indicates 0.42m water depth over roadway at Bhalukpong.",
   },
   {
@@ -59,6 +63,8 @@ const VISION_PRESETS = [
     hazard: "black_ice",
     severity: "Class 2",
     location: "Sela Pass Portal (Altitude: 13,700 ft)",
+    blockage_pct: 40.0,
+    water_depth_m: undefined,
     promptText: "❄️ Vision Trigger: Black ice and freeze-thaw hazard detected near Sela Tunnel portal approach.",
   },
 ];
@@ -69,93 +75,6 @@ const SUGGESTIONS = [
   "How does BRO Project Vartak deploy machinery for road clearance?",
   "What are the IMD rainfall thresholds for road closures?",
 ];
-
-const GROUNDED_FALLBACKS: Record<string, { answer: string; sources: Citation[] }> = {
-  landslide: {
-    answer: `### 🚨 Immediate Operational Actions (NDMA SOP 2024-V2)
-
-1. **Traffic Halting within 15 Minutes:**
-   - Police checkpoints at Bhalukpong must halt upstream traffic immediately.
-   - Heavy Transport Vehicles (HTVs) diverted to designated mountain staging areas to prevent gridlock.
-
-2. **Evacuation & Stranded Vehicles:**
-   - Evacuation priority: (1) Medical emergency vehicles, (2) Passenger buses, (3) Light motor vehicles (LMVs), (4) Essential goods trucks.
-   - If rockfall remains active, occupants must be moved on foot to nearest BRO transit camps or village community shelters.
-
-3. **Active Detour Corridor:**
-   - Divert through the **Orang-Kalaktang-Shergaon-Rupa-Tenghing (OKSRT)** road.
-   - **Weight Limit:** Strictly restricted to Gross Vehicle Weight (GVW) ≤ 16.2 tonnes due to steep gradients (> 7%).
-
-4. **Re-Opening Criteria:**
-   - Zero active rockfall for ≥ 3 continuous daylight hours.
-   - Minimum cleared roadway width of 4.25 meters with valley-side gabion protection in place.`,
-    sources: [
-      {
-        file: "ndma_landslide_sop.md",
-        page: "Section 2",
-        snippet: "When a Class 3 landslide is detected: Traffic Halting within 15 Minutes... Divert traffic via the Orang-Kalaktang-Shergaon-Rupa-Tenghing (OKSRT) road. Restriction: GVW <= 16.2 tonnes.",
-      },
-      {
-        file: "ndma_landslide_sop.md",
-        page: "Section 3",
-        snippet: "Zero active rockfall for >= 3 continuous daylight hours and roadway width cleared to minimum 4.25 meters.",
-      },
-    ],
-  },
-  flood: {
-    answer: `### 🌊 Flash Flood & Inundation Response (IMD / CWC Matrix)
-
-1. **SAR Water Depth Threshold:**
-   - Sentinel-1 SAR registered backscatter drop (< -18 dB in VV), indicating ground water depth ≥ 0.40 meters.
-   - **Vehicle Restriction:** No vehicle with wheel diameter < 1.0 meter is permitted to cross flowing causeways where water depth exceeds 0.25 meters.
-
-2. **Automated Corridor Broadcast:**
-   - Automated danger alerts dispatched to all connected telemetry units within a 25 km buffer.
-
-3. **Turbidity Early Warning:**
-   - If roadside mountain streams turn chocolate brown, upstream slope damming has occurred. Traffic must halt ≥ 1,000 meters clear of bridge and culvert fan areas.`,
-    sources: [
-      {
-        file: "imd_weather_alert_protocols.md",
-        page: "Section 3",
-        snippet: "When Sentinel-1 SAR registers backscatter drop (< -18 dB in VV), water depth is assumed >= 0.40m. Causeways over 0.25m depth closed to small-wheel vehicles.",
-      },
-    ],
-  },
-  sela: {
-    answer: `### ❄️ Sela Pass & Tunnel Winter Clearance (BRO Project Vartak)
-
-1. **Machinery Mobilization (Within 20 Minutes):**
-   - High-capacity rotary snow blowers (3,000 tonnes/hr) operate continuously.
-   - Salt / urea / sand spreading (ratio 1:3:10) is mandatory when surface temperature drops below -2°C and humidity > 85%.
-
-2. **Safety Mandate:**
-   - Tire chains are mandatory for all vehicles transiting above Jaswant Garh.
-   - Sela Tunnel ventilation maintains airflow ≥ 2.5 m/s during emergency convoys.`,
-    sources: [
-      {
-        file: "bro_mountain_road_clearance.md",
-        page: "Section 3",
-        snippet: "Sela Tunnel twin tubes: Air velocity >= 2.5 m/s. Black ice spreading mixture 1:3:10 when temp < -2C. Mandatory tire chains above Jaswant Garh.",
-      },
-    ],
-  },
-  drainage: {
-    answer: `### 📐 Hill Road Engineering Standards (IRC:SP:48)
-
-- **Catchwater Drains:** Placed 5–10m above cut slope crest; longitudinal gradient 1%–3% discharging into lined chutes.
-- **Hill-Side Drains:** Lined masonry (M-15), minimum 0.60m depth and 0.50m bed width. Inspected weekly during monsoon.
-- **Culverts:** Spacing of 4–5 culverts per kilometer in heavy rainfall zones. Minimum pipe diameter is 1,000 mm (1.0 meter) to prevent boulder choking.
-- **Slope Retaining:** Breast walls on hill side with 1:3 back batter; rockfall barrier nets (≥ 2,000 kJ rating) on slopes > 65°.`,
-    sources: [
-      {
-        file: "irc_sp_48_hill_roads.md",
-        page: "Section 2",
-        snippet: "Catchwater drains installed 5-10m above cut slope... Culvert spacing minimum 4-5 per km with minimum internal diameter >= 1000 mm.",
-      },
-    ],
-  },
-};
 
 export default function AssistantPage() {
   const [messages, setMessages] = useState<Message[]>([
@@ -219,28 +138,17 @@ export default function AssistantPage() {
         ]);
         return;
       }
-      throw new Error(`Server returned ${res.status}`);
-    } catch {
-      const q = text.toLowerCase();
-      let match = GROUNDED_FALLBACKS.landslide;
-      if (q.includes("flood") || q.includes("sar") || q.includes("water")) {
-        match = GROUNDED_FALLBACKS.flood;
-      } else if (q.includes("sela") || q.includes("snow") || q.includes("ice") || q.includes("bro")) {
-        match = GROUNDED_FALLBACKS.sela;
-      } else if (q.includes("drainage") || q.includes("irc") || q.includes("culvert")) {
-        match = GROUNDED_FALLBACKS.drainage;
-      }
-
+      const errData = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(errData.detail || `HTTP ${res.status}`);
+    } catch (err: any) {
       setMessages((prev) => [
         ...prev,
         {
           id: `a-${Date.now()}`,
           sender: "assistant",
-          text: match.answer,
+          text: `⚠️ **RAG Backend Service Unreachable / Offline**\n\nCould not execute query against live pgvector & Groq LLM pipeline.\n\n*Error details:* ${err.message || "Failed to connect to /api/v1/rag/query"}\n\n*Required Service:* Ensure FastAPI engine (port 8000) and PostgreSQL PostGIS/pgvector (port 55432) are running with \`GROQ_API_KEY\` set in \`.env\`.`,
           time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-          sources: match.sources,
-          sitrepAvailable: isVision,
-          incidentMeta: meta,
+          sources: [],
         },
       ]);
     } finally {
@@ -249,11 +157,68 @@ export default function AssistantPage() {
   };
 
   const handleVisionPresetClick = async (preset: (typeof VISION_PRESETS)[0]) => {
-    await handleQuery(preset.promptText, true, {
-      hazard: preset.hazard,
-      severity: preset.severity,
-      location: preset.location,
-    });
+    if (loading) return;
+
+    const userMsg: Message = {
+      id: `u-${Date.now()}`,
+      sender: "user",
+      text: preset.promptText,
+      time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      isVisionTriggered: true,
+    };
+
+    setMessages((prev) => [...prev, userMsg]);
+    setLoading(true);
+
+    try {
+      const res = await fetch("/api/v1/rag/vision-action", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          hazard_type: preset.hazard,
+          severity: preset.severity,
+          location: preset.location,
+          water_depth_m: preset.water_depth_m,
+          blockage_pct: preset.blockage_pct,
+        }),
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `a-${Date.now()}`,
+            sender: "assistant",
+            text: data.dispatch_guidance,
+            time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+            sources: data.grounding_sources || [],
+            sitrepAvailable: true,
+            incidentMeta: {
+              hazard: preset.hazard,
+              severity: preset.severity,
+              location: preset.location,
+            },
+          },
+        ]);
+        return;
+      }
+      const errData = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(errData.detail || `HTTP ${res.status}`);
+    } catch (err: any) {
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `a-${Date.now()}`,
+          sender: "assistant",
+          text: `⚠️ **Vision-to-SOP Automated Dispatch Failed**\n\nFailed to invoke live endpoint \`/api/v1/rag/vision-action\`.\n\n*Reason:* ${err.message || "Backend offline"}\n\n*Action required:* Start the RouteX backend container or service to process satellite/YOLO telemetry against pgvector SOPs.`,
+          time: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          sources: [],
+        },
+      ]);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGenerateSitRep = async (meta: { hazard: string; severity: string; location: string }) => {
@@ -265,7 +230,7 @@ export default function AssistantPage() {
           hazard_type: meta.hazard,
           severity: meta.severity,
           location: meta.location,
-          details: "Confirmed by Sentinel-1 SAR and YOLO Road Damage telemetry.",
+          details: "Verified field telemetry from Sentinel-1 SAR and YOLO Road Damage detector.",
         }),
       });
 
@@ -277,41 +242,10 @@ export default function AssistantPage() {
         });
         return;
       }
-      throw new Error("SitRep API unavailable");
-    } catch {
-      // High-craft fallback SitRep
-      setCurrentSitRep({
-        incident_id: `ROUTEX-SITREP-${meta.hazard.substring(0, 3).toUpperCase()}-4021`,
-        location: meta.location,
-        hazard_type: meta.hazard.toUpperCase(),
-        severity: meta.severity,
-        timestamp: new Date().toLocaleString(),
-        sitrep_content: `[CONFIDENTIAL / IMMEDIATE TACTICAL DISPATCH]
-
-1. INCIDENT CLASSIFICATION & TIME SENSITIVITY:
-- Classified as ${meta.severity} ${meta.hazard.toUpperCase()} obstruction at ${meta.location}.
-- Estimated debris mass exceeds 1,200 m³. Formation structurally compromised.
-
-2. MANDATORY CHECKPOINT TRAFFIC ORDERS:
-- Bhalukpong & Tengapani checkpoints ordered to HALT all uphill transit within 15 minutes.
-- Heavy Transport Vehicles (HTVs) diverted to Staging Bay 3 (Km 12).
-- Priority transit reserved strictly for BRO emergency convoy and medical ambulances.
-
-3. SAFE EVACUATION & ALTERNATIVE BYPASS:
-- Divert light passenger transit via OKSRT Corridor (Orang-Kalaktang-Shergaon-Rupa-Tenghing).
-- MAXIMUM PERMISSIBLE GROSS VEHICLE WEIGHT (GVW): 16.2 TONNES (Strictly enforced due to 7.8% gradient).
-
-4. BRO MACHINERY MOBILIZATION PACKAGE:
-- Mobilized from 14 BRTF Sector Camp (Km 54):
-  • 2x Crawler Hydraulic Excavators (25 Ton)
-  • 2x Front End Wheel Loaders (3.0 m³)
-  • 4x Pneumatic Rock Breakers
-  • 1x Bailey Bridge emergency assembly team on 1-hour standby at Bomdila depot.
-
-5. WEATHER CORROBORATION & RE-OPENING SAFETY CRITERIA:
-- IMD 24h Rainfall: 165 mm (Orange Alert). Soil saturation currently at 76%.
-- Highway re-opening PERMITTED ONLY AFTER minimum 3 continuous daylight hours of zero active rock detachment.`,
-      });
+      const errData = await res.json().catch(() => ({ detail: res.statusText }));
+      throw new Error(errData.detail || `Server returned ${res.status}`);
+    } catch (err: any) {
+      alert(`⚠️ Tactical SitRep Generation Failed:\n${err.message || "Could not reach live backend."}\n\nPer Forge '26 live-data guidelines, static mock SitReps are disabled. Please ensure the backend RAG service is active.`);
     }
   };
 

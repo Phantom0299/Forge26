@@ -18,11 +18,13 @@ def main():
         description="Ingest and verify mountain corridor disaster SOPs in pgvector.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
+    import os
+    default_source = os.getenv("RAG_DOCUMENTS_DIR", "data/rag_documents")
     parser.add_argument(
         "--source",
         type=str,
-        default="data/rag_documents",
-        help="Path to directory containing SOP manuals (default: data/rag_documents)",
+        default=default_source,
+        help=f"Path to directory containing SOP manuals (default: {default_source})",
     )
     parser.add_argument(
         "--reset",
