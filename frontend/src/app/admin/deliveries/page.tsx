@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { api } from "@/lib/api";
-import { INITIAL_DELIVERIES } from "@/data/adminData";
 import { DeliveryConsignment } from "@/types/admin";
 
 interface BackendTripItem {
@@ -21,7 +20,7 @@ interface TripListResponse {
 }
 
 export default function AdminDeliveriesPage() {
-  const [deliveries, setDeliveries] = useState<DeliveryConsignment[]>(INITIAL_DELIVERIES);
+  const [deliveries, setDeliveries] = useState<DeliveryConsignment[]>([]);
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [searchQuery, setSearchQuery] = useState("");
 
@@ -123,7 +122,14 @@ export default function AdminDeliveriesPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((d) => {
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-8 text-xs text-[#71877D]">
+                    No delivery consignments found in live database.
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((d) => {
                 let badgeClass = "bg-[#DDF4E8] text-[#12432A] border border-[#B7E4CD]";
                 if (d.status === "In Progress") {
                   badgeClass = "bg-[#E0F2FE] text-[#0284C7] border border-[#BAE6FD]";

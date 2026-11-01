@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { api, ApiError } from "@/lib/api";
-import { INITIAL_ADMIN_INCIDENTS } from "@/data/adminData";
 import { AdminIncidentItem, AdminIncidentStatus } from "@/types/admin";
 
 interface BackendIncidentItem {
@@ -21,7 +20,7 @@ interface BackendIncidentItem {
 }
 
 export default function IncidentManagementPage() {
-  const [incidents, setIncidents] = useState<AdminIncidentItem[]>(INITIAL_ADMIN_INCIDENTS);
+  const [incidents, setIncidents] = useState<AdminIncidentItem[]>([]);
   const [typeFilter, setTypeFilter] = useState<string>("ALL");
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState<string>("");

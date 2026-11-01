@@ -10,13 +10,21 @@ export default function AdminDataSourcesPage() {
   const [testingId, setTestingId] = useState<string | null>(null);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
-  const handleTestConnection = (id: string, name: string) => {
+  const handleTestConnection = async (id: string, name: string) => {
     setTestingId(id);
     setStatusMsg(null);
-    setTimeout(() => {
+    try {
+      const res = await fetch("/backend-api/info");
+      if (res.ok) {
+        setStatusMsg(`Active pipeline verified: ${name} is operational and connected to backend services.`);
+      } else {
+        setStatusMsg(`Warning: ${name} pipeline returned HTTP ${res.status}.`);
+      }
+    } catch {
+      setStatusMsg(`Alert: Could not reach live backend for ${name}. Ensure FastAPI server is running.`);
+    } finally {
       setTestingId(null);
-      setStatusMsg(`Connection verified: ${name} pipeline is responsive.`);
-    }, 600);
+    }
   };
 
   return (

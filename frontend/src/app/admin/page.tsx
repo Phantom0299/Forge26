@@ -3,7 +3,6 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import AdminLayout from "@/components/admin/AdminLayout";
-import { INITIAL_ADMIN_INCIDENTS } from "@/data/adminData";
 import { api } from "@/lib/api";
 import type { AdminIncidentItem } from "@/types/admin";
 import type { BackendInfoResponse, RoadFeatureCollection } from "@/types/roads";
@@ -25,7 +24,7 @@ export default function AdminOverviewPage() {
   const [backendInfo, setBackendInfo] = useState<BackendInfoResponse | null>(null);
   const [roadsData, setRoadsData] = useState<RoadFeatureCollection | null>(null);
   const [isBackendHealthy, setIsBackendHealthy] = useState<boolean | null>(null);
-  const [incidents, setIncidents] = useState(INITIAL_ADMIN_INCIDENTS);
+  const [incidents, setIncidents] = useState<AdminIncidentItem[]>([]);
 
   useEffect(() => {
     api.get<BackendInfoResponse>("/backend-api/info")
@@ -67,32 +66,22 @@ export default function AdminOverviewPage() {
       .catch(() => {});
   }, []);
 
-  // Compute road segments count strictly from real data or baseline
+  // Compute road segments count strictly from live PostGIS GeoJSON
   const segments = roadsData?.features || [];
-  const totalCount = segments.length || 124;
+  const totalCount = segments.length;
 
-  const openCount = segments.length
-    ? segments.filter((f) => f.properties.status === "OPEN").length
-    : 89;
-  const atRiskCount = segments.length
-    ? segments.filter((f) => f.properties.status === "AT_RISK").length
-    : 18;
-  const restrictedCount = segments.length
-    ? segments.filter((f) => f.properties.status === "RESTRICTED").length
-    : 5;
-  const blockedCount = segments.length
-    ? segments.filter((f) => f.properties.status === "BLOCKED").length
-    : 6;
-  const unknownCount = segments.length
-    ? segments.filter((f) => f.properties.status === "UNKNOWN" || !f.properties.status).length
-    : 6;
+  const openCount = segments.filter((f) => f.properties.status === "OPEN").length;
+  const atRiskCount = segments.filter((f) => f.properties.status === "AT_RISK").length;
+  const restrictedCount = segments.filter((f) => f.properties.status === "RESTRICTED").length;
+  const blockedCount = segments.filter((f) => f.properties.status === "BLOCKED").length;
+  const unknownCount = segments.filter((f) => f.properties.status === "UNKNOWN" || !f.properties.status).length;
 
   // Percentage calculations
-  const openPct = Math.round((openCount / totalCount) * 100);
-  const atRiskPct = Math.round((atRiskCount / totalCount) * 100);
-  const restrictedPct = Math.round((restrictedCount / totalCount) * 100);
-  const blockedPct = Math.round((blockedCount / totalCount) * 100);
-  const unknownPct = 100 - (openPct + atRiskPct + restrictedPct + blockedPct);
+  const openPct = totalCount > 0 ? Math.round((openCount / totalCount) * 100) : 0;
+  const atRiskPct = totalCount > 0 ? Math.round((atRiskCount / totalCount) * 100) : 0;
+  const restrictedPct = totalCount > 0 ? Math.round((restrictedCount / totalCount) * 100) : 0;
+  const blockedPct = totalCount > 0 ? Math.round((blockedCount / totalCount) * 100) : 0;
+  const unknownPct = totalCount > 0 ? Math.max(0, 100 - (openPct + atRiskPct + restrictedPct + blockedPct)) : 0;
 
   return (
     <AdminLayout>
@@ -270,7 +259,13 @@ export default function AdminOverviewPage() {
               </div>
 
               <div className="divide-y divide-[#E8EFE5]">
-                {incidents.slice(0, 4).map((inc) => (
+                {incidents.length === 0 ? (
+                  <div className="py-8 text-center text-xs text-[#71877D]">
+                    <span className="block text-base mb-1">🛡️</span>
+                    No active hazard incidents reported in live database.
+                  </div>
+                ) : (
+                  incidents.slice(0, 4).map((inc) => (
                   <div key={inc.id} className="py-2.5 flex items-start justify-between gap-3">
                     <div className="flex items-start gap-2.5">
                       <span className="text-base mt-0.5">

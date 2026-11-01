@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import AdminLayout from "@/components/admin/AdminLayout";
 import { api } from "@/lib/api";
-import { INITIAL_ADMIN_INCIDENTS } from "@/data/adminData";
 import { AdminIncidentItem } from "@/types/admin";
 
 interface BackendIncidentItem {
@@ -27,7 +26,7 @@ interface IncidentListResponse {
 }
 
 export default function FieldReportsPage() {
-  const [reports, setReports] = useState<AdminIncidentItem[]>(INITIAL_ADMIN_INCIDENTS);
+  const [reports, setReports] = useState<AdminIncidentItem[]>([]);
   const [sourceFilter, setSourceFilter] = useState<string>("ALL");
 
   useEffect(() => {
@@ -104,7 +103,14 @@ export default function FieldReportsPage() {
               </tr>
             </thead>
             <tbody>
-              {filtered.map((r) => (
+              {filtered.length === 0 ? (
+                <tr>
+                  <td colSpan={6} className="text-center py-8 text-xs text-[#71877D]">
+                    No field reports found in live database.
+                  </td>
+                </tr>
+              ) : (
+                filtered.map((r) => (
                 <tr key={r.id}>
                   <td className="font-mono text-xs text-[#193B32] font-semibold">{r.id}</td>
                   <td className="font-bold text-[#193B32]">{r.type.replace("_", " ")}</td>
